@@ -4,9 +4,7 @@ import { init as initQml } from '@node-3d/plugin-qml';
 
 const cwd = import.meta.dirname;
 
-const {
-	doc,
-} = init({
+const { doc } = init({
 	isGles3: true,
 	isWebGL2: true,
 	autoEsc: true,
@@ -33,9 +31,9 @@ const overlay = new QmlOverlay({ file: `${cwd}/qml/gui.qml` });
 scene.add(overlay.mesh);
 
 const geo = new three.BufferGeometry<three.NormalOrGLBufferAttributes>();
-geo.computeBoundingSphere = (() => {
+geo.computeBoundingSphere = () => {
 	geo.boundingSphere = new three.Sphere(undefined, Infinity);
-});
+};
 geo.computeBoundingSphere();
 geo.setDrawRange(0, 0);
 
@@ -43,9 +41,11 @@ const CLOUD_SIZE = 20000;
 
 const vertices = [];
 for (let i = 0; i < CLOUD_SIZE; i++) {
-	vertices.push(Math.random() * 2000 - 1000);
-	vertices.push(Math.random() * 2000 - 1000);
-	vertices.push(Math.random() * 2000 - 1000);
+	vertices.push(
+		Math.random() * 2000 - 1000,
+		Math.random() * 2000 - 1000,
+		Math.random() * 2000 - 1000,
+	);
 }
 const vbo = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
@@ -67,7 +67,7 @@ scene.add(particles);
 const update = () => {
 	material.color.setHSL(getTimeHue(), 1, 0.5);
 	particles.rotation.y = Date.now() * 0.00005;
-	
+
 	screen.draw();
 };
 

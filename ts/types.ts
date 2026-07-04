@@ -1,5 +1,14 @@
 import type * as THREE from 'three';
-import type { Method, Property, TKeyEvent, TMouseEventCommon, TMouseEventPress, TMouseEventWheel, TOptsView, View } from '@node-3d/qml';
+import type {
+	Method,
+	Property,
+	TKeyEvent,
+	TMouseEventCommon,
+	TMouseEventPress,
+	TMouseEventWheel,
+	TOptsView,
+	View,
+} from '@node-3d/qml';
 import type { TCore3D, TWebgl } from '@node-3d/core';
 
 export type TThree = typeof THREE;
@@ -13,7 +22,7 @@ export type TQmlMaterialInstance = THREE.ShaderMaterial & {
 };
 
 export type TNewableQmlMaterial = {
-	new(opts?: TMaterialOpts): TQmlMaterialInstance;
+	new (opts?: TMaterialOpts): TQmlMaterialInstance;
 	prototype: TQmlMaterialInstance;
 };
 
@@ -27,7 +36,7 @@ export type TQmlOverlayInstance = InstanceType<typeof View> & {
 };
 
 export type TNewableQmlOverlay = Pick<typeof View, 'init' | 'style' | 'update'> & {
-	new(opts?: TOptsView): TQmlOverlayInstance;
+	new (opts?: TOptsView): TQmlOverlayInstance;
 	prototype: TQmlOverlayInstance;
 };
 
@@ -36,9 +45,10 @@ export type TInitMaterialOpts = Readonly<{
 	three: TThree | null;
 }>;
 
-export type TInitOverlayOpts = TInitMaterialOpts & Readonly<{
-	doc: TDocument;
-}>;
+export type TInitOverlayOpts = TInitMaterialOpts &
+	Readonly<{
+		doc: TDocument;
+	}>;
 
 export type TInitOpts = Readonly<{
 	doc: TDocument;
@@ -60,11 +70,17 @@ export type TQml3D = Readonly<{
 }>;
 
 export type TTextureProperties = {
-	'__webglTexture'?: unknown;
-	'__webglInit'?: boolean;
+	__webglTexture?: unknown;
+	__webglInit?: boolean;
 };
 
-export type TOverlayEventName = 'mousedown' | 'mouseup' | 'mousemove' | 'keydown' | 'keyup' | 'wheel';
+export type TOverlayEventName =
+	| 'mousedown'
+	| 'mouseup'
+	| 'mousemove'
+	| 'keydown'
+	| 'keyup'
+	| 'wheel';
 
 export type TOverlayEventMap = {
 	mousedown: TMouseEventPress;

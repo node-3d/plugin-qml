@@ -33,15 +33,17 @@ const allocBuffer = (doc: ScreenshotDoc): Buffer => {
 const getImage = (doc: ScreenshotDoc, Image: ScreenshotImageCtor): ScreenshotImage | null => {
 	try {
 		const storage = { data: allocBuffer(doc) };
-		
+
 		doc.context.readPixels(
-			0, 0,
-			doc.w, doc.h,
+			0,
+			0,
+			doc.w,
+			doc.h,
 			doc.context.RGBA,
 			doc.context.UNSIGNED_BYTE,
-			storage
+			storage,
 		);
-		
+
 		const img = Image.fromPixels(doc.w, doc.h, 32, storage.data);
 		return img;
 	} catch (error) {
@@ -69,24 +71,24 @@ const compareScreenshot = async (
 		console.error(`Warning! No such screenshot: ${name}.`);
 		return false;
 	}
-	
+
 	const actualImage = getImage(doc, Image);
 	if (!actualImage?.data) {
 		return false;
 	}
-	
+
 	const expectedImage = await Image.loadAsync(path);
 	if (!expectedImage.data) {
 		return false;
 	}
-	
+
 	const diff = allocBuffer(doc);
-	
+
 	let numFailedPixels = 0;
-	
+
 	try {
 		const { default: pixelmatch } = await import('pixelmatch');
-		
+
 		numFailedPixels = pixelmatch(
 			expectedImage.data,
 			actualImage.data,
@@ -104,29 +106,31 @@ const compareScreenshot = async (
 		console.error(error);
 		return false;
 	}
-	
+
 	const pathDiff = makePathDiff(name);
-	
+
 	if (numFailedPixels) {
 		console.warn(`Screenshot: ${name} - ${numFailedPixels}/${maxFailedPixels}.`);
 		const pathExpected = makePathExpected(name);
 		const pathActual = makePathActual(name);
 		actualImage.save(pathActual);
 		expectedImage.save(pathExpected);
-		
+
 		const diffImage = Image.fromPixels(doc.w, doc.h, 32, diff);
 		diffImage.save(pathDiff);
-		
+
 		const isError = numFailedPixels >= maxFailedPixels;
-		console[isError ? 'error' : 'warn']([
-			`Screenshot: ${name}.`,
-			`Failed pixels: ${numFailedPixels}/${maxFailedPixels}.`,
-			`Diff written: ${pathDiff}.`,
-		].join('\n'));
-		
+		console[isError ? 'error' : 'warn'](
+			[
+				`Screenshot: ${name}.`,
+				`Failed pixels: ${numFailedPixels}/${maxFailedPixels}.`,
+				`Diff written: ${pathDiff}.`,
+			].join('\n'),
+		);
+
 		return !isError;
 	}
-	
+
 	return true;
 };
 
@@ -137,16 +141,16 @@ export const screenshot = async (
 ): Promise<boolean> => {
 	try {
 		const path = makePathExport(name);
-		
+
 		// oxlint-disable-next-line node/no-process-env
 		const isCi = !!process.env['CI'];
 		const hasFile = fs.existsSync(path);
-		
+
 		if (!hasFile && !isCi) {
 			await makeScreenshot(name, doc, Image);
 			return true;
 		}
-		
+
 		return compareScreenshot(name, doc, Image);
 	} catch (error) {
 		console.error(error);
@@ -154,5 +158,4 @@ export const screenshot = async (
 	}
 };
 
-export default { screenshot 
-};
+export default { screenshot };

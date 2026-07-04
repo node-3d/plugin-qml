@@ -6,8 +6,10 @@ import type { TQml3D } from '../ts/index.ts';
 
 const initForTest = (): Omit<TCore3D, 'loop'> & TQml3D => {
 	const node3d = init({
-		isGles3: true, isWebGL2: true,
-		width: 200, height: 200,
+		isGles3: true,
+		isWebGL2: true,
+		width: 200,
+		height: 200,
 	});
 
 	const { doc } = node3d;

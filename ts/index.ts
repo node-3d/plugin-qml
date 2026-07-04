@@ -10,24 +10,24 @@ const initPlugin = (opts: TInitOpts): TQml3D => {
 		...opts,
 		cwd: opts.cwd || process.cwd(),
 	};
-	
+
 	const { doc, gl, cwd, three } = optsFinal;
 	if (!three) {
 		throw new Error('Failed to initialize @node-3d/plugin-qml without three.');
 	}
 	const release = (): void => doc.makeCurrent();
-	
+
 	View.init(cwd, doc.platformWindow, doc.platformContext, doc.platformDevice);
 	View.style('Basic');
 	release();
-	
+
 	const loop = (cb: () => void): (() => void) => {
 		let next: ReturnType<typeof doc.requestAnimationFrame> | null = null;
 		const loopFunc = (): void => {
 			View.update();
 			doc.makeCurrent();
-			cb();
 			next = doc.requestAnimationFrame(loopFunc);
+			cb();
 		};
 		next = doc.requestAnimationFrame(loopFunc);
 		return () => {
@@ -36,7 +36,7 @@ const initPlugin = (opts: TInitOpts): TQml3D => {
 			}
 		};
 	};
-	
+
 	const textureFromId = (id: number | null, renderer: THREE.WebGLRenderer): THREE.Texture => {
 		const WebGLTexture = gl.WebGLTexture as new (textureId: number | null) => unknown;
 		const rawTexture = new WebGLTexture(id);
@@ -44,18 +44,18 @@ const initPlugin = (opts: TInitOpts): TQml3D => {
 		const properties = (renderer.properties?.get(texture) ?? texture) as TTextureProperties;
 		properties['__webglTexture'] = rawTexture;
 		properties['__webglInit'] = true;
-		
+
 		return texture;
 	};
-	
+
 	const QmlMaterial = initQmlMaterial({ textureFromId, three });
 	const QmlOverlayMaterial = initQmlOverlayMaterial({ textureFromId, three });
 	const QmlOverlay = initQmlOverlay({ doc, textureFromId, three });
-	
+
 	if (!QmlMaterial || !QmlOverlayMaterial || !QmlOverlay) {
 		throw new Error('Failed to initialize @node-3d/plugin-qml classes.');
 	}
-	
+
 	return {
 		View,
 		Property,

@@ -9,6 +9,6 @@ declare const init: (opts: TInitOpts) => TQml3D;
 export { init };
 export type { TInitOpts, TNewableQmlMaterial, TNewableQmlOverlay, TNewableQmlOverlayMaterial, TQml3D, TQmlMaterialInstance, TQmlOverlayInstance, TTextureFromId, TThree, } from './types.ts';
 declare const _default: {
-    init: (opts: TInitOpts) => TQml3D;
+    init: typeof init;
 };
 export default _default;

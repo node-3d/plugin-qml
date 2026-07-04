@@ -4,10 +4,11 @@ import { init as initQml } from '@node-3d/plugin-qml';
 
 const cwd = import.meta.dirname;
 
-const {
-	doc,
-} = init({
-	isGles3: true, isWebGL2: true, autoEsc: true, vsync: true,
+const { doc } = init({
+	isGles3: true,
+	isWebGL2: true,
+	autoEsc: true,
+	vsync: true,
 });
 
 addThreeHelpers(three);
@@ -21,7 +22,6 @@ icon.on('load', () => {
 	}
 });
 doc.title = 'Calqlatr';
-
 
 const scene = new three.Scene();
 const cameraPerspective = new three.PerspectiveCamera(90, doc.w / doc.h, 1, 1000);
