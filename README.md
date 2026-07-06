@@ -39,7 +39,7 @@ const {
 });
 ```
 
-* See [example](/examples/fps/main.ts) for a complete setup.
+* See [example](examples/fps/main.ts) for a complete setup.
 
 ## API
 
@@ -74,8 +74,8 @@ on arbitrary meshes or overlay planes.
 It is also possible to run [QtQuick examples](https://doc.qt.io/qt-6/qtquick-codesamples.html)
 on Node.js with this renderer. But it will only work with `QtQuick` components, i.e.
 not `QtMultimedia`, `QtNetwork`, etc. - because those libs are not included.
-See [Dashboard](https://doc.qt.io/qt-5/qtquickextras-dashboard-example.html)
-example being [copied](examples/qt-dashboard) as a proof of concept.
+See [Qt Quick Calqlatr](https://doc.qt.io/qt-6/qtquick-demos-calqlatr-example.html)
+example being [copied](examples/qt-calqlatr) as a proof of concept.
 
 
 ## QmlOverlay
