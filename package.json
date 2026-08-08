@@ -2,7 +2,7 @@
 	"author": "Luis Blanco <luisblanco1337@gmail.com>",
 	"name": "@node-3d/plugin-qml",
 	"version": "5.0.0",
-	"description": "QML 2D graphics plugin for Node.js 3D Core",
+	"description": "QML 2D graphics plugin for Node3D",
 	"license": "MIT",
 	"main": "dist/index.js",
 	"type": "module",
