@@ -48,10 +48,18 @@ const { init, addThreeHelpers, gl } = core;
 
 const getInitOpts = (): TInitOpts => {
 	const opts: TInitOpts = {
-		isGles3: true,
-		isWebGL2: true,
 		width: 200,
 		height: 200,
+		...(shouldUseGlesTestWindowHints
+			? {
+					isGles3: true,
+					isWebGL2: true,
+				}
+			: {
+					isGles3: false,
+					major: 2,
+					minor: 1,
+				}),
 	};
 
 	if (!shouldUseGlesTestWindowHints) {
