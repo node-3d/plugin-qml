@@ -1,14 +1,20 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 import * as three from 'three';
-import { Image } from '@node-3d/core';
+import { matchScreenshot } from '@node-3d/core/testing';
+import type { TScreenshotReportLevel } from '@node-3d/core/testing';
 
 import initForTest from './init.ts';
-import screenshotModule from './screenshot.ts';
 
-const { screenshot } = screenshotModule;
 const inited = initForTest();
 const { QmlOverlay, loop, doc } = inited;
+const report = (level: TScreenshotReportLevel, message: string, error?: unknown): void => {
+	if (error === undefined) {
+		console[level](message);
+		return;
+	}
+	console[level](message, error);
+};
 
 const renderer = new three.WebGLRenderer();
 renderer.setPixelRatio(doc.devicePixelRatio);
@@ -48,7 +54,7 @@ const tested = describe('Screenshots', () => {
 		});
 		renderer.render(scene, camera);
 
-		assert.ok(await screenshot('ui', doc, Image));
+		assert.ok(await matchScreenshot('ui', { doc, screenshotsDir: '__screenshots__', report }));
 	});
 });
 

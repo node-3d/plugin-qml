@@ -20,15 +20,11 @@ The QML backend is **Qt 6.8.0**.
 
 ```typescript
 import * as three from 'three';
-import { init, addThreeHelpers } from '@node-3d/core';
+import { init, addThreeHelpers, gl } from '@node-3d/core';
 import { init as initQml } from '@node-3d/plugin-qml';
 
 // Standard Node3D init
-const {
-	doc,
-	Image: Img,
-	gl,
-} = init({
+const { doc } = init({
 	isGles3: true,
 	isWebGL2: true,
 	autoEsc: true,

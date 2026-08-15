@@ -18,7 +18,7 @@ const scene = screen.scene;
 
 const { QmlOverlay, loop } = initQml({ doc, gl, cwd, three });
 
-const icon = new Image('qml.png'); // use `npm run gui` from "examples", so CWD is there
+const icon = new Image(`${cwd}/../qml.png`);
 icon.on('load', () => {
 	if (icon.data) {
 		doc.icon = { width: icon.width, height: icon.height, data: icon.data };
