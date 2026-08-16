@@ -1,4 +1,5 @@
 import { strict as assert } from 'node:assert';
+import { env } from 'node:process';
 import { describe, it } from 'node:test';
 import * as three from 'three';
 import { matchScreenshot } from '@node-3d/core/testing';
@@ -15,6 +16,10 @@ const report = (level: TScreenshotReportLevel, message: string, error?: unknown)
 	}
 	console[level](message, error);
 };
+const skipScreenshot =
+	env.NODE_3D_SKIP_QML_SCREENSHOT === '1'
+		? 'QML screenshot rendering is unavailable on this CI runner.'
+		: false;
 
 const renderer = new three.WebGLRenderer();
 renderer.setPixelRatio(doc.devicePixelRatio);
@@ -43,7 +48,7 @@ const texturePromise = Promise.race([
 scene.add(overlay.mesh);
 
 const tested = describe('Screenshots', () => {
-	it('matches ui screenshot', async () => {
+	it('matches ui screenshot', { skip: skipScreenshot }, async () => {
 		const loaded = await loadPromise;
 		assert.strictEqual(loaded, true);
 		const texture = await texturePromise;
