@@ -88,10 +88,6 @@ jobs:
           }
           JS
 
-      - name: Install Mesa Surfaceless EGL - Mac
-        if: matrix.target == 'darwin-x64' || matrix.target == 'darwin-arm64'
-        run: bash .github/scripts/setup-macos-gl.sh ${{ matrix.node_arch }}
-
       - name: Run Unit Tests - Linux
         if: matrix.target == 'linux-x64' || matrix.target == 'linux-arm64'
         run: |

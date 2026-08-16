@@ -3,8 +3,7 @@ import * as three from 'three';
 import type { TCore3D, TGlfw, TInitOpts } from '@node-3d/core';
 import type { TQml3D } from '../ts/index.ts';
 
-const shouldUseHeadlessGlfw = platform === 'darwin';
-const shouldUseGlesTestWindowHints = platform === 'darwin' || platform === 'linux';
+const shouldUseGlesTestWindowHints = platform === 'linux';
 
 const applyGlesWindowHints = (currentGlfw: TGlfw): void => {
 	currentGlfw.windowHint(currentGlfw.VISIBLE, currentGlfw.FALSE);
@@ -17,27 +16,7 @@ const applyGlesWindowHints = (currentGlfw: TGlfw): void => {
 	currentGlfw.windowHint(currentGlfw.SAMPLES, 0);
 };
 
-const applyHeadlessWindowHints = (currentGlfw: TGlfw): void => {
-	currentGlfw.windowHint(currentGlfw.CONTEXT_CREATION_API, currentGlfw.EGL_CONTEXT_API);
-	applyGlesWindowHints(currentGlfw);
-};
-
 const importCoreForTest = async () => {
-	const nodeGlobal = globalThis as unknown as Record<string, unknown>;
-	if (shouldUseHeadlessGlfw) {
-		nodeGlobal['__isGlfwInited'] = true;
-		const { glfw: bootstrappedGlfw } = await import('@node-3d/glfw');
-		bootstrappedGlfw.initHint(bootstrappedGlfw.PLATFORM, bootstrappedGlfw.PLATFORM_NULL);
-
-		if (!bootstrappedGlfw.init()) {
-			throw new Error('Failed to initialize GLFW for headless tests');
-		}
-
-		bootstrappedGlfw.defaultWindowHints();
-		bootstrappedGlfw.windowHint(bootstrappedGlfw.STENCIL_BITS, 0);
-		nodeGlobal['__isGlfwInited'] = true;
-	}
-
 	const core = await import('@node-3d/core');
 
 	return core;
@@ -50,6 +29,7 @@ const getInitOpts = (): TInitOpts => {
 	const opts: TInitOpts = {
 		width: 200,
 		height: 200,
+		isVisible: false,
 		...(shouldUseGlesTestWindowHints
 			? {
 					isGles3: true,
@@ -68,12 +48,7 @@ const getInitOpts = (): TInitOpts => {
 
 	return {
 		...opts,
-		isVisible: false,
 		onBeforeWindow(_window, currentGlfw) {
-			if (shouldUseHeadlessGlfw) {
-				applyHeadlessWindowHints(currentGlfw as TGlfw);
-				return;
-			}
 			applyGlesWindowHints(currentGlfw as TGlfw);
 		},
 	};

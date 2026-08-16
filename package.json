@@ -47,7 +47,6 @@
 	"devDependencies": {
 		"@node-3d/addon-tools": "10.0.5",
 		"@node-3d/core": "6.3.0",
-		"@node-3d/glfw": "7.3.1",
 		"@rslib/core": "0.23.2",
 		"@types/node": "24.13.2",
 		"@types/three": "0.174.0",
