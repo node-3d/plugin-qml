@@ -1,6 +1,5 @@
 import { platform } from 'node:process';
 import * as three from 'three';
-import { init as initQml } from '../ts/index.ts';
 import type { TCore3D, TGlfw, TInitOpts } from '@node-3d/core';
 import type { TQml3D } from '../ts/index.ts';
 
@@ -27,18 +26,19 @@ const importCoreForTest = async () => {
 	const nodeGlobal = globalThis as unknown as Record<string, unknown>;
 	if (shouldUseHeadlessGlfw) {
 		nodeGlobal['__isGlfwInited'] = true;
+		const { glfw: bootstrappedGlfw } = await import('@node-3d/glfw');
+		bootstrappedGlfw.initHint(bootstrappedGlfw.PLATFORM, bootstrappedGlfw.PLATFORM_NULL);
+
+		if (!bootstrappedGlfw.init()) {
+			throw new Error('Failed to initialize GLFW for headless tests');
+		}
+
+		bootstrappedGlfw.defaultWindowHints();
+		bootstrappedGlfw.windowHint(bootstrappedGlfw.STENCIL_BITS, 0);
+		nodeGlobal['__isGlfwInited'] = true;
 	}
 
 	const core = await import('@node-3d/core');
-
-	if (shouldUseHeadlessGlfw) {
-		core.glfw.initHint(core.glfw.PLATFORM, core.glfw.PLATFORM_NULL);
-		if (!core.glfw.init()) {
-			throw new Error('Failed to initialize GLFW for headless tests');
-		}
-		core.glfw.defaultWindowHints();
-		nodeGlobal['__isGlfwInited'] = true;
-	}
 
 	return core;
 };
@@ -79,8 +79,9 @@ const getInitOpts = (): TInitOpts => {
 	};
 };
 
-const initForTest = (): Omit<TCore3D, 'loop'> & TQml3D => {
+const initForTest = async (): Promise<Omit<TCore3D, 'loop'> & TQml3D> => {
 	const node3d = init(getInitOpts());
+	const { init: initQml } = await import('../ts/index.ts');
 
 	const { doc } = node3d;
 

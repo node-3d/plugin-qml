@@ -7,7 +7,7 @@ import type { TScreenshotReportLevel } from '@node-3d/core/testing';
 
 import initForTest from './init.ts';
 
-const inited = initForTest();
+const inited = await initForTest();
 const { QmlOverlay, loop, doc } = inited;
 const report = (level: TScreenshotReportLevel, message: string, error?: unknown): void => {
 	if (error === undefined) {

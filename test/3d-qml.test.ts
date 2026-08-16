@@ -2,7 +2,7 @@ import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 import initForTest from './init.ts';
 
-const inited = initForTest();
+const inited = await initForTest();
 const { QmlOverlay, QmlMaterial, QmlOverlayMaterial, loop, doc } = inited;
 
 const initResults = [
