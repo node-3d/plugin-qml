@@ -88,6 +88,27 @@ jobs:
           }
           JS
 
+      - name: Verify Package Loads - Mac
+        if: matrix.target == 'darwin-x64' || matrix.target == 'darwin-arm64'
+        run: |
+          node --input-type=module <<'JS'
+          const qml = await import('@node-3d/qml');
+          const plugin = await import('./ts/index.ts');
+
+          const required = [
+            ['@node-3d/qml View', qml.View],
+            ['@node-3d/qml Property', qml.Property],
+            ['@node-3d/qml Method', qml.Method],
+            ['@node-3d/plugin-qml init', plugin.init],
+          ];
+
+          for (const [name, value] of required) {
+            if (typeof value !== 'function') {
+              throw new TypeError(`${name} did not load as a function.`);
+            }
+          }
+          JS
+
       - name: Run Unit Tests - Linux
         if: matrix.target == 'linux-x64' || matrix.target == 'linux-arm64'
         run: |
@@ -107,10 +128,6 @@ jobs:
 
       - name: Run Unit Tests - Windows
         if: matrix.target == 'windows-x64'
-        run: npm run test:ci
-
-      - name: Run Unit Tests - Mac
-        if: matrix.target == 'darwin-x64' || matrix.target == 'darwin-arm64'
         run: npm run test:ci
 
       - name: Check Diff Artifacts

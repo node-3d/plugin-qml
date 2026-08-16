@@ -18,6 +18,12 @@ The QML backend is **Qt 6.8.0**.
 > Note: **IMPORTANT**, QML has its own OpenGL context. Make sure to switch back.
 > Use `document.makeCurrent()` or `release()` (see exported below).
 
+CI runs full QML context-sharing tests on Windows x64 and Linux x64. Linux ARM64
+loads and runs the plugin but skips screenshot comparison because Qt Quick rendering
+is not available on the hosted ARM runner. macOS CI validates binary and package
+loading only: QMLUI needs native Cocoa/NSGL handles, while hosted macOS cannot create
+a suitable NSGL pixel format and core's NULL/EGL path does not expose those handles.
+
 ```typescript
 import * as three from 'three';
 import { init, addThreeHelpers, gl } from '@node-3d/core';
