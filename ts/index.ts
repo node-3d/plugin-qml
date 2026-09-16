@@ -8,7 +8,7 @@ import type { TInitOpts, TQml3D, TTextureProperties } from './types.ts';
 const initPlugin = (opts: TInitOpts): TQml3D => {
 	const optsFinal = {
 		...opts,
-		cwd: opts.cwd || process.cwd(),
+		cwd: opts.cwd ?? process.cwd(),
 	};
 
 	const { doc, gl, cwd, three } = optsFinal;
@@ -41,9 +41,11 @@ const initPlugin = (opts: TInitOpts): TQml3D => {
 		const WebGLTexture = gl.WebGLTexture as new (textureId: number | null) => unknown;
 		const rawTexture = new WebGLTexture(id);
 		const texture = new three.Texture();
-		const properties = (renderer.properties?.get(texture) ?? texture) as TTextureProperties;
-		properties['__webglTexture'] = rawTexture;
-		properties['__webglInit'] = true;
+		const properties = (renderer.properties.get(texture) ?? texture) as TTextureProperties;
+		// oxlint-disable-next-line no-underscore-dangle
+		properties.__webglTexture = rawTexture;
+		// oxlint-disable-next-line no-underscore-dangle
+		properties.__webglInit = true;
 
 		return texture;
 	};

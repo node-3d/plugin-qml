@@ -19,12 +19,12 @@ class QmlOverlayMaterialBase extends QmlMaterialBase {
 
 		super({
 			...opts,
-			side: opts.side || activeThree.CullFaceFront,
-			depthWrite: opts.depthWrite || false,
-			depthTest: opts.depthTest || false,
-			transparent: opts.transparent || true,
+			side: opts.side ?? activeThree.CullFaceFront,
+			depthWrite: opts.depthWrite ?? false,
+			depthTest: opts.depthTest ?? false,
+			transparent: opts.transparent ?? true,
 			vertexShader:
-				opts.vertexShader ||
+				opts.vertexShader ??
 				`
 				out vec2 tc;
 				void main() {
@@ -48,7 +48,7 @@ const initMaterial = (opts: TInitMaterialOpts): TNewableQmlOverlayMaterial | nul
 	}
 
 	activeThree = three;
-	return QmlOverlayMaterialBase as TNewableQmlOverlayMaterial;
+	return QmlOverlayMaterialBase;
 };
 
 let inited: TNewableQmlOverlayMaterial | null = null;

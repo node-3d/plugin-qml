@@ -5,7 +5,7 @@ import sharedConfig from '@node-3d/addon-tools/oxlint';
 const config: OxlintConfig = {
 	...sharedConfig,
 	ignorePatterns: [
-		...(sharedConfig.ignorePatterns ?? []),
+		...sharedConfig.ignorePatterns,
 		'examples/qt-calqlatr/calqlatr/content/calculator.js',
 	],
 };

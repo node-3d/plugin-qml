@@ -42,10 +42,6 @@ const routeVisibleEvent = <T extends TOverlayEventName>(
 
 const initOverlay = (opts: TInitOverlayOpts): TNewableQmlOverlay | null => {
 	const { doc, three } = opts;
-	if (!doc) {
-		logger.error("Can't init QmlOverlayMaterial with no `doc`.");
-		return null;
-	}
 
 	if (!three) {
 		logger.error("Can't init QmlOverlayMaterial with no `three`.");
@@ -63,8 +59,8 @@ const initOverlay = (opts: TInitOverlayOpts): TNewableQmlOverlay | null => {
 	class QmlOverlay extends View {
 		private _isVisible = true;
 		private _isDisabled = false;
-		private _mat: TQmlMaterialInstance;
-		private _mesh: THREE.Mesh;
+		private readonly _mat: TQmlMaterialInstance;
+		private readonly _mesh: THREE.Mesh;
 
 		public constructor(opts: TOptsView = {}) {
 			release();
@@ -135,7 +131,7 @@ const initOverlay = (opts: TInitOverlayOpts): TNewableQmlOverlay | null => {
 		}
 	}
 
-	return QmlOverlay as TNewableQmlOverlay;
+	return QmlOverlay;
 };
 
 let inited: TNewableQmlOverlay | null = null;

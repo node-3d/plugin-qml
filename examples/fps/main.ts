@@ -1,9 +1,9 @@
 // oxlint-disable max-lines
 // Based on https://threejs.org/examples/?q=fps#games_fps
 import * as three from 'three';
-import { init, addThreeHelpers, gl, glfw, Image } from '@node-3d/core';
+import { init, addThreeHelpers, gl, Image } from '@node-3d/core';
 import { init as initQml } from '@node-3d/plugin-qml';
-import { extraCodes } from '@node-3d/glfw';
+import type { TKeyEvent, TMouseMoveEvent } from '@node-3d/glfw';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Octree } from 'three/addons/math/Octree.js';
 import { OctreeHelper } from 'three/addons/helpers/OctreeHelper.js';
@@ -86,7 +86,7 @@ let health: number = 100;
 let enemyRate = ENEMY_RATE_START;
 let difficulty = DIFFICULTY_START;
 
-const clock = new three.Clock();
+const timer = new three.Timer();
 
 const enemyMovePatterns = [
 	(collider: three.Sphere) => {
@@ -150,11 +150,11 @@ overlay.mesh.layers.enable(LAYER_GUN);
 overlay.mesh.layers.disable(LAYER_WORLD);
 
 type TMethodFlash = (color: 'red' | 'green') => void;
-const methodHudFlash: TMethodFlash = new Method({
+const methodHudFlash = new Method({
 	view: overlay,
 	name: 'hud',
 	key: 'flashColor',
-});
+}) as TMethodFlash;
 
 const gun = new three.Object3D();
 gun.visible = false;
@@ -502,13 +502,13 @@ const spawnEnemy = (rate: number = 0) => {
 
 	const randIdx = Math.floor(Math.random() * enemyPool.length);
 	const randEnemy = enemyPool[randIdx];
-	if (randEnemy.isActive) {
+	if (!randEnemy || randEnemy.isActive) {
 		return;
 	}
 
 	randEnemy.ttl = TTL_SEC_ENEMY;
 	randEnemy.isActive = true;
-	enemyMovePatterns[randIdx % enemyMoveCount](randEnemy.collider);
+	enemyMovePatterns[randIdx % enemyMoveCount]?.(randEnemy.collider);
 	randEnemy.mesh.position.copy(randEnemy.collider.center);
 	randEnemy.mesh.visible = true;
 };
@@ -530,14 +530,14 @@ const spheresCollisions = () => {
 
 	for (let i = 0; i < spherePoolSize; i++) {
 		const s1 = spherePool[i];
-		if (!s1.isActive) {
+		if (!s1?.isActive) {
 			continue;
 		}
 
 		// Sphere vs Sphere
 		for (let j = i + 1; j < spherePoolSize; j++) {
 			const s2 = spherePool[j];
-			if (!s2.isActive) {
+			if (!s2?.isActive) {
 				continue;
 			}
 
@@ -565,7 +565,7 @@ const spheresCollisions = () => {
 		// Sphere vs Enemy
 		for (let j = 0; j < enemyPoolSize; j++) {
 			const s2 = enemyPool[j];
-			if (!s2.isActive) {
+			if (!s2?.isActive) {
 				continue;
 			}
 
@@ -631,8 +631,8 @@ const updateSpheres = (deltaTime: number) => {
 
 const updateEnemies = (deltaTime: number) => {
 	for (let i = 0; i < NUM_ENEMIES; i++) {
-		const enemy: TActor = enemyPool[i];
-		if (!enemy.isActive) {
+		const enemy: TActor | undefined = enemyPool[i];
+		if (!enemy?.isActive) {
 			continue;
 		}
 		if (enemy.ttl > 0) {
@@ -644,7 +644,7 @@ const updateEnemies = (deltaTime: number) => {
 			continue;
 		}
 
-		enemyMovePatterns[i % enemyMoveCount](enemy.collider);
+		enemyMovePatterns[i % enemyMoveCount]?.(enemy.collider);
 		enemy.collider.center.lerp(POS_ENEMY_TARGET, 1 - enemy.ttl / TTL_SEC_ENEMY);
 		if (enemy.collider.distanceToPoint(POS_ENEMY_TARGET) < 0.3) {
 			health = Math.max(0, health - 10);
@@ -681,23 +681,23 @@ const controls = (deltaTime: number) => {
 	// gives a bit of air control
 	const speedDelta = deltaTime * (playerOnFloor ? 25 : 8);
 
-	if (keyStates[glfw.KEY_W]) {
+	if (keyStates.KeyW) {
 		playerVelocity.add(getForwardVector().multiplyScalar(speedDelta));
 	}
 
-	if (keyStates[glfw.KEY_S]) {
+	if (keyStates.KeyS) {
 		playerVelocity.add(getForwardVector().multiplyScalar(-speedDelta));
 	}
 
-	if (keyStates[glfw.KEY_A]) {
+	if (keyStates.KeyA) {
 		playerVelocity.add(getSideVector().multiplyScalar(-speedDelta));
 	}
 
-	if (keyStates[glfw.KEY_D]) {
+	if (keyStates.KeyD) {
 		playerVelocity.add(getSideVector().multiplyScalar(speedDelta));
 	}
 
-	if (playerOnFloor && keyStates[glfw.KEY_SPACE]) {
+	if (playerOnFloor && keyStates.Space) {
 		playerVelocity.y = SPEED_JUMP;
 	}
 };
@@ -719,8 +719,9 @@ loadModel('collision-world.glb', (gltf) => {
 		child.castShadow = true;
 		child.receiveShadow = true;
 
-		if (child.material.map) {
-			child.material.map.anisotropy = 4;
+		const mat = child.material as three.MeshStandardMaterial | undefined;
+		if (mat?.map) {
+			mat.map.anisotropy = 4;
 		}
 	});
 
@@ -759,7 +760,10 @@ loadModel('Flamingo.glb', (gltf) => {
 		scene.add(meshClone);
 
 		const mixer = new three.AnimationMixer(meshClone);
-		mixer.clipAction(gltf.animations[0]).setDuration(1).play();
+		const anim0 = gltf.animations.at(0);
+		if (anim0) {
+			mixer.clipAction(anim0).setDuration(1).play();
+		}
 
 		enemy.mesh = meshClone;
 		enemy.mixer = mixer;
@@ -768,6 +772,9 @@ loadModel('Flamingo.glb', (gltf) => {
 
 loadModel('blasterG.glb', (gltf) => {
 	const mesh = gltf.scene.children[0];
+	if (!mesh) {
+		throw new Error('Failed to load 3D model for the gun.');
+	}
 
 	gltf.scene.traverse((node) => {
 		node.layers.enable(LAYER_GUN);
@@ -793,6 +800,9 @@ loadModel('blasterG.glb', (gltf) => {
 
 loadModel('targetB.glb', (gltf) => {
 	const mesh = gltf.scene.children[0];
+	if (!mesh) {
+		throw new Error('Failed to load 3D model for the target.');
+	}
 
 	gltf.scene.traverse((node) => {
 		if (node instanceof three.Mesh) {
@@ -826,7 +836,8 @@ const animate = () => {
 	}
 
 	if (hudState === 'hud') {
-		const deltaTime = Math.min(0.05, clock.getDelta());
+		timer.update();
+		const deltaTime = Math.min(0.05, timer.getDelta());
 		const deltaStep = deltaTime / STEPS_PER_FRAME;
 
 		gunFuel = Math.min(1, gunFuel + deltaTime * GUN_REFILL_RATE);
@@ -906,18 +917,22 @@ const restartGame = () => {
 	doc.setPointerCapture();
 };
 
-doc.on('keydown', (e) => {
+doc.on('keydown', (e: TKeyEvent) => {
 	release();
 	if (hudState !== 'hud') {
 		return;
 	}
-	keyStates[e['keyCode']] = true;
+	if (e.code) {
+		keyStates[e.code] = true;
+	}
 });
 
-doc.on('keyup', (e) => {
+doc.on('keyup', (e: TKeyEvent) => {
 	release();
-	keyStates[e['keyCode']] = false;
-	if (e['keyCode'] === extraCodes[glfw.KEY_ESCAPE]) {
+	if (e.code) {
+		keyStates[e.code] = false;
+	}
+	if (e.key === 'Escape') {
 		if (hudState !== 'hud' && hudState !== 'esc') {
 			return;
 		}
@@ -947,14 +962,14 @@ doc.on('mouseup', () => {
 	throwBall();
 });
 
-doc.on('mousemove', (event) => {
+doc.on('mousemove', (event: TMouseMoveEvent) => {
 	if (hudState !== 'hud') {
 		return;
 	}
 	release();
 
-	const newYaw: number = targetRotY - event['movementX'] * 0.001;
-	const newPitch: number = targetRotX - event['movementY'] * 0.001;
+	const newYaw: number = targetRotY - event.movementX * 0.001;
+	const newPitch: number = targetRotX - event.movementY * 0.001;
 
 	targetRotY = newYaw;
 	targetRotX = Math.min(pitchLimitRad, Math.max(-pitchLimitRad, newPitch));

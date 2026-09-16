@@ -16,15 +16,15 @@ let activeTextureFromId: TTextureFromId | null = null;
 
 const makeMaterialParams = (three: TThree, opts: TMaterialOpts): TMaterialOpts => ({
 	...opts,
-	side: opts.side || three.CullFaceBack,
+	side: opts.side ?? three.CullFaceBack,
 	uniforms: {
 		...opts.uniforms,
 		t: { value: null },
 	},
-	transparent: opts.transparent || false,
-	lights: opts.lights || false,
+	transparent: opts.transparent ?? false,
+	lights: opts.lights ?? false,
 	vertexShader:
-		opts.vertexShader ||
+		opts.vertexShader ??
 		`
 		out vec2 tc;
 		void main() {
@@ -33,7 +33,7 @@ const makeMaterialParams = (three: TThree, opts: TMaterialOpts): TMaterialOpts =
 		}
 	`,
 	fragmentShader:
-		opts.fragmentShader ||
+		opts.fragmentShader ??
 		`
 		uniform sampler2D t;
 		in vec2 tc;
@@ -42,7 +42,7 @@ const makeMaterialParams = (three: TThree, opts: TMaterialOpts): TMaterialOpts =
 			fragColor = texture(t, tc);
 		}
 	`,
-	glslVersion: opts.glslVersion || '300 es',
+	glslVersion: opts.glslVersion ?? '300 es',
 });
 
 export class QmlMaterialBase extends ShaderMaterial {
@@ -57,7 +57,7 @@ export class QmlMaterialBase extends ShaderMaterial {
 		super(makeMaterialParams(activeThree, opts));
 	}
 
-	public onBeforeCompile(
+	public override onBeforeCompile(
 		shaderObject: THREE.WebGLProgramParametersWithUniforms,
 		renderer: THREE.WebGLRenderer,
 	): void {
@@ -69,7 +69,10 @@ export class QmlMaterialBase extends ShaderMaterial {
 
 		if (!this._renderer && this._textureId) {
 			this._texture = activeTextureFromId(this._textureId, renderer);
-			this.shaderUniforms.t.value = this._texture;
+			const { t } = this.shaderUniforms;
+			if (t) {
+				t.value = this._texture;
+			}
 		}
 		this._renderer = renderer;
 	}
@@ -82,7 +85,10 @@ export class QmlMaterialBase extends ShaderMaterial {
 
 		if (this._renderer && this._textureId && activeTextureFromId) {
 			this._texture = activeTextureFromId(this._textureId, this._renderer);
-			this.shaderUniforms.t.value = this._texture;
+			const { t } = this.shaderUniforms;
+			if (t) {
+				t.value = this._texture;
+			}
 		}
 	}
 
@@ -99,7 +105,7 @@ const initMaterial = ({ textureFromId, three }: TInitMaterialOpts): TNewableQmlM
 
 	activeThree = three;
 	activeTextureFromId = textureFromId;
-	return QmlMaterialBase as TNewableQmlMaterial;
+	return QmlMaterialBase;
 };
 
 let inited: TNewableQmlMaterial | null = null;

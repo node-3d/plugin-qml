@@ -37,7 +37,7 @@ geo.computeBoundingSphere = () => {
 geo.computeBoundingSphere();
 geo.setDrawRange(0, 0);
 
-const CLOUD_SIZE = 20000;
+const CLOUD_SIZE = 20_000;
 
 const vertices = [];
 for (let i = 0; i < CLOUD_SIZE; i++) {
