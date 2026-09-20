@@ -19,7 +19,7 @@ const { doc } = init({
 	vsync: true,
 });
 
-addThreeHelpers(three);
+addThreeHelpers();
 
 const { QmlOverlay, Property, Method, View, loop, release, textureFromId } = initQml({
 	doc,

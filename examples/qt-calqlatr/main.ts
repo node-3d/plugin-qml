@@ -11,7 +11,7 @@ const { doc } = init({
 	vsync: true,
 });
 
-addThreeHelpers(three);
+addThreeHelpers();
 
 const { QmlOverlay, loop } = initQml({ doc, gl, cwd, three });
 

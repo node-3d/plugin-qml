@@ -11,9 +11,9 @@ const { doc } = init({
 	autoFullscreen: true,
 	title: 'QML UI',
 });
-addThreeHelpers(three);
+addThreeHelpers();
 
-const screen = new Screen({ three, fov: 90, near: 1, far: 2000, z: 1000 });
+const screen = new Screen({ fov: 90, near: 1, far: 2000, z: 1000 });
 const scene = screen.scene;
 
 const { QmlOverlay, loop } = initQml({ doc, gl, cwd, three });

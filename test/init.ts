@@ -60,7 +60,7 @@ const initForTest = async (): Promise<Omit<TCore3D, 'loop'> & TQml3D> => {
 
 	const { doc } = node3d;
 
-	addThreeHelpers(three);
+	addThreeHelpers();
 
 	const inited = initQml({ doc, gl, cwd: import.meta.dirname, three });
 	return { ...node3d, ...inited };
